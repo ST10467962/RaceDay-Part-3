@@ -1,0 +1,94 @@
+@model EventDetailsViewModel
+@{
+    var ev = Model.Event;
+    ViewData["Title"] = ev.EventName;
+    var banner = Url.ImageUrl(ev.BannerImageName);
+    var user = Context.Session.GetUser();
+}
+<div class="container page">
+    <p class="mb-3"><a asp-controller="Home" asp-action="Index">&larr; All events</a></p>
+    <partial name="_Flash" />
+
+    @if (banner != null)
+    {
+        <img class="event-banner" src="@banner" alt="@ev.EventName banner" />
+    }
+    else
+    {
+        <div class="event-banner event-banner--blank" aria-hidden="true"></div>
+    }
+
+    <div class="page-head">
+        <div>
+            <h1>@ev.EventName</h1>
+            <p>@ev.EventType in @ev.Location, organised by @ev.OrganiserName</p>
+        </div>
+        <partial name="_StatusBadge" model="@(ev.IsUpcoming ? "Upcoming" : "Completed")" />
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="facts">
+                <div class="fact"><span>Date</span><b>@ViewHelpers.LongDate(ev.EventDate)</b></div>
+                <div class="fact"><span>Distance</span><b>@ViewHelpers.Km(ev.Distance)</b></div>
+                <div class="fact"><span>Start</span><b>@(ev.StartTime.HasValue ? ViewHelpers.TimeOfDay(ev.StartTime) : "To be announced")</b></div>
+                @if (ev.EndTime.HasValue)
+                {
+                    <div class="fact"><span>Cut-off</span><b>@ViewHelpers.TimeOfDay(ev.EndTime)</b></div>
+                }
+            </div>
+            <h2 class="mt-4 mb-3">About this event</h2>
+            <p style="white-space:pre-line">@ev.Description</p>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="panel">
+                <h2 class="panel-title">Categories</h2>
+
+                @if (Model.MyEntry != null)
+                {
+                    <div class="flash flash--ok" role="status">
+                        You're enrolled in <b>@Model.MyEntry.CategoryName</b>.
+                        <partial name="_StatusBadge" model="@Model.MyEntry.Status" />
+                    </div>
+                }
+
+                @if (ev.Categories.Count == 0)
+                {
+                    <p class="text-muted mb-0">The organiser hasn't added categories yet, so enrolment isn't open.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var category in ev.Categories)
+                        {
+                            <li class="d-flex flex-wrap justify-content-between align-items-center gap-2 py-3 border-bottom">
+                                <div>
+                                    <b>@category.CategoryName</b><br />
+                                    <span class="text-muted small">@ViewHelpers.Km(category.Distance), @category.AgeGroup, @ViewHelpers.Money(category.EntryFee)</span>
+                                </div>
+                                @if (Model.CanEnrol)
+                                {
+                                    <form asp-action="Enrol" method="post" data-confirm="@($"Enrol in {category.CategoryName} for {ev.EventName}?")">
+                                        <input type="hidden" name="eventId" value="@ev.EventId" />
+                                        <input type="hidden" name="categoryId" value="@category.CategoryId" />
+                                        <button type="submit" class="btn btn-primary btn-sm">Enrol</button>
+                                    </form>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+
+                @if (user != null && user.IsOrganiser)
+                {
+                    <p class="form-hint mt-3 mb-0">You're viewing this as an organiser. Manage it from the dashboard.</p>
+                }
+                else if (Model.MyEntry == null && !ev.IsUpcoming)
+                {
+                    <p class="form-hint mt-3 mb-0">This event has taken place, so enrolment is closed.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

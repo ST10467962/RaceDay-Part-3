@@ -1,0 +1,89 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var user = Context.Session.GetUser();
+}
+<div class="container page">
+    <div class="page-head">
+        <div>
+            <h1>Welcome back, @user?.FirstName</h1>
+            <p>Your events, enrolments and what needs attention.</p>
+        </div>
+        <a class="btn btn-primary" asp-controller="ManageEvents" asp-action="Create">Create an event</a>
+    </div>
+
+    <partial name="_Flash" />
+
+    <div class="stats">
+        <div class="stat"><b>@Model.TotalEvents</b><span>Events created</span></div>
+        <div class="stat"><b>@Model.Upcoming.Count</b><span>Upcoming events</span></div>
+        <div class="stat"><b>@Model.TotalEnrolments</b><span>Active enrolments</span></div>
+        <div class="stat stat--signal"><b>@Model.PendingEnrolments</b><span>Waiting for confirmation</span></div>
+    </div>
+
+    @if (Model.Events.Count == 0)
+    {
+        <div class="panel empty">
+            <h3>Create your first event</h3>
+            <p>Add the details, a banner and some categories. Participants can enrol as soon as it's saved.</p>
+            <a class="btn btn-primary mt-2" asp-controller="ManageEvents" asp-action="Create">Create an event</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="panel panel--flush">
+                    <table class="rd-table table-responsive-stack">
+                        <thead>
+                            <tr><th>Event</th><th>Date</th><th>Status</th><th>Enrolments</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var ev in Model.Events)
+                        {
+                            var width = Model.MaxEnrolments == 0 ? 0 : (int)Math.Round(100.0 * ev.EnrolmentCount / Model.MaxEnrolments);
+                            <tr>
+                                <td data-label="Event"><b>@ev.EventName</b><br /><span class="text-muted small">@ev.Location</span></td>
+                                <td data-label="Date">@ViewHelpers.ShortDate(ev.EventDate)</td>
+                                <td data-label="Status"><partial name="_StatusBadge" model="@(ev.IsUpcoming ? "Upcoming" : "Completed")" /></td>
+                                <td data-label="Enrolments">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bar" role="img" aria-label="@ev.EnrolmentCount enrolments"><i style="width:@(width)%"></i></div>
+                                        <b>@ev.EnrolmentCount</b>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a class="btn btn-sm btn-outline-ink" asp-controller="ManageEnrolments" asp-action="Index" asp-route-eventId="@ev.EventId">Enrolments</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="panel">
+                    <h2 class="panel-title">Coming up</h2>
+                    @if (Model.Upcoming.Count == 0)
+                    {
+                        <p class="text-muted mb-0">No upcoming events. Create one to get started.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var ev in Model.Upcoming.Take(5))
+                            {
+                                <li class="py-2 border-bottom">
+                                    <span class="display-font" style="font-size:1.5rem;color:var(--rd-blue)">@ev.EventDate.ToString("dd MMM", System.Globalization.CultureInfo.InvariantCulture)</span>
+                                    <span class="ms-2">@ev.EventName</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
