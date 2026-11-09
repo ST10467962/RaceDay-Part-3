@@ -1,0 +1,47 @@
+name: RaceDay CI
+
+on:
+  push:
+    branches: [ main, master, 'part-3**' ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    name: Build API and MVC, run tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    # Projects are built directly (the .slnx files need a newer SDK than .NET 8).
+    - name: Restore
+      run: |
+        dotnet restore RaceDayAPI/RaceDayAPI/RaceDayAPI.csproj
+        dotnet restore RaceDayAPI/RaceDayAPI.Tests/RaceDayAPI.Tests.csproj
+        dotnet restore RaceDayMVC/RaceDayMVC/RaceDayMVC.csproj
+
+    - name: Build API
+      run: dotnet build RaceDayAPI/RaceDayAPI/RaceDayAPI.csproj --no-restore --configuration Release
+
+    - name: Build MVC
+      run: dotnet build RaceDayMVC/RaceDayMVC/RaceDayMVC.csproj --no-restore --configuration Release
+
+    - name: Test
+      run: dotnet test RaceDayAPI/RaceDayAPI.Tests/RaceDayAPI.Tests.csproj --no-restore --configuration Release --verbosity normal
+
+  docker-build:
+    name: Build MVC Docker image
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build image
+      run: docker build -t raceday-mvc -f RaceDayMVC/RaceDayMVC/Dockerfile RaceDayMVC
