@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Race events, entered properly";
+}
+<section class="hero">
+    <div class="container">
+        <div>
+            <h1>Pick a race.<br />Pin your number.</h1>
+            <p>RaceDay is where organisers publish road runs, trail races and rides, and where runners enrol, track their place and see their finishing position afterwards.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-signal btn-lg" asp-controller="Account" asp-action="Register">Create an account</a>
+                <a class="btn btn-outline-light btn-lg" asp-controller="Account" asp-action="Login">Log in</a>
+            </div>
+        </div>
+        <div class="hero-bib" aria-hidden="true">
+            <div class="bib__holes"><span></span><span></span></div>
+            <small>Race number</small>
+            <div class="big">21</div>
+            <div class="line">RaceDay Half Marathon</div>
+        </div>
+    </div>
+</section>
+
+<section class="container page">
+    <div class="value-grid">
+        <div>
+            <h3>For participants</h3>
+            <p>Filter upcoming events by type, distance and date. Enrol in the category that fits your age and pace, and watch your enrolment move from pending to confirmed.</p>
+        </div>
+        <div>
+            <h3>For organisers</h3>
+            <p>Create events with a banner, set up age and distance categories, confirm enrolments and publish finish times when the race is over.</p>
+        </div>
+        <div>
+            <h3>Your race history</h3>
+            <p>Every result is kept in one place: event, category, finish time and where you came in, such as 47th out of 312.</p>
+        </div>
+    </div>
+</section>

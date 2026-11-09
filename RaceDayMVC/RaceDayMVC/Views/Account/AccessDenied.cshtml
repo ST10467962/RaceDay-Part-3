@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Access denied";
+    var user = Context.Session.GetUser();
+}
+<div class="container page">
+    <div class="empty panel">
+        <div class="display-font" style="font-size:6rem;color:var(--rd-blue);line-height:1">403</div>
+        <h1 style="font-size:2.4rem">That page isn't for your account</h1>
+        <p>You're signed in as @(user?.Role ?? "a visitor"), and this area is for a different role.</p>
+        <a class="btn btn-primary mt-3" asp-controller="Home" asp-action="Index">Go to your home page</a>
+    </div>
+</div>
