@@ -1,0 +1,70 @@
+@model CategoryListViewModel
+@{
+    ViewData["Title"] = "Categories";
+}
+<div class="container page">
+    <div class="page-head">
+        <div>
+            <h1>Categories</h1>
+            <p>Age and distance categories participants choose from when they enrol.</p>
+        </div>
+        @if (Model.Selected != null)
+        {
+            <a class="btn btn-primary" asp-action="Create" asp-route-eventId="@Model.Selected.EventId">Add a category</a>
+        }
+    </div>
+
+    <partial name="_Flash" />
+
+    @if (Model.Selected == null)
+    {
+        <div class="panel empty">
+            <h3>Create an event first</h3>
+            <p>Categories belong to an event, so you'll need one before you can add any.</p>
+            <a class="btn btn-primary mt-2" asp-controller="ManageEvents" asp-action="Create">Create an event</a>
+        </div>
+    }
+    else
+    {
+        <partial name="_EventPicker" model="@((EventPickerViewModel)Model)" />
+
+        @if (Model.Categories.Count == 0)
+        {
+            <div class="panel empty">
+                <h3>No categories for @Model.Selected.EventName yet</h3>
+                <p>Participants can't enrol until there's at least one category, for example "10 km Open" or "5 km Under 18".</p>
+                <a class="btn btn-primary mt-2" asp-action="Create" asp-route-eventId="@Model.Selected.EventId">Add a category</a>
+            </div>
+        }
+        else
+        {
+            <div class="panel panel--flush">
+                <table class="rd-table table-responsive-stack">
+                    <thead>
+                        <tr><th>Category</th><th class="num">Distance</th><th>Age group</th><th class="num">Entry fee</th><th class="num">Enrolled</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <tr>
+                            <td data-label="Category"><b>@category.CategoryName</b></td>
+                            <td data-label="Distance" class="num">@ViewHelpers.Km(category.Distance)</td>
+                            <td data-label="Age group">@category.AgeGroup</td>
+                            <td data-label="Entry fee" class="num">@ViewHelpers.Money(category.EntryFee)</td>
+                            <td data-label="Enrolled" class="num">@category.EnrolmentCount</td>
+                            <td>
+                                <div class="row-actions">
+                                    <a class="btn btn-sm btn-outline-ink" asp-action="Edit" asp-route-id="@category.CategoryId">Edit</a>
+                                    <form asp-action="Delete" asp-route-id="@category.CategoryId" asp-route-eventId="@Model.Selected.EventId" method="post" data-confirm="@($"Delete the {category.CategoryName} category? Enrolments in it will be deleted too.")">
+                                        <button type="submit" class="btn btn-sm btn-danger-quiet">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>

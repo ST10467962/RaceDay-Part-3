@@ -1,0 +1,87 @@
+@model EventFormViewModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Create event" : "Edit event";
+    var existing = Url.ImageUrl(Model.ExistingBannerName);
+}
+<div class="container page">
+    <p class="mb-3"><a asp-action="Index">&larr; All events</a></p>
+    <div class="page-head">
+        <h1>@(Model.IsNew ? "Create an event" : "Edit event")</h1>
+    </div>
+
+    <partial name="_Flash" />
+
+    <form asp-action="@(Model.IsNew ? "Create" : "Edit")" asp-route-id="@(Model.IsNew ? null : Model.EventId.ToString())" method="post" enctype="multipart/form-data" class="panel form-wide" novalidate>
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+        {
+            <div class="alert-form" role="alert" asp-validation-summary="ModelOnly"></div>
+        }
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="EventName" class="form-label"></label>
+                <input asp-for="EventName" class="form-control" />
+                <span asp-validation-for="EventName"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Description"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="EventDate" class="form-label"></label>
+                <input asp-for="EventDate" type="date" class="form-control" />
+                <span asp-validation-for="EventDate"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="StartTime" class="form-label"></label>
+                <input asp-for="StartTime" type="time" class="form-control" />
+                <span asp-validation-for="StartTime"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="EndTime" class="form-label"></label>
+                <input asp-for="EndTime" type="time" class="form-control" />
+                <span asp-validation-for="EndTime"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Location" class="form-label"></label>
+                <input asp-for="Location" class="form-control" />
+                <span asp-validation-for="Location"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Distance" class="form-label"></label>
+                <input asp-for="Distance" type="number" step="0.1" min="0.1" class="form-control" />
+                <span asp-validation-for="Distance"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="EventType" class="form-label"></label>
+                <select asp-for="EventType" class="form-select">
+                    <option value="">Choose a type</option>
+                    @foreach (var type in FormOptions.EventTypes)
+                    {
+                        <option value="@type" selected="@(Model.EventType == type)">@type</option>
+                    }
+                </select>
+                <span asp-validation-for="EventType"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="BannerImage" class="form-label"></label>
+                @if (existing != null)
+                {
+                    <div class="mb-2"><img id="bannerPreview" class="banner-preview" src="@existing" alt="Current banner" /></div>
+                }
+                else
+                {
+                    <div class="mb-2"><img id="bannerPreview" class="banner-preview" alt="Banner preview" hidden /></div>
+                }
+                <input asp-for="BannerImage" type="file" class="form-control" accept="image/png,image/jpeg,image/gif,image/webp" data-preview="bannerPreview" />
+                <div class="form-hint">@(existing != null ? "Choose a new image to replace the current banner. " : "")JPG, PNG, GIF or WebP, up to 5 MB.</div>
+                <span asp-validation-for="BannerImage"></span>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">@(Model.IsNew ? "Create event" : "Save changes")</button>
+            <a class="btn btn-outline-ink" asp-action="Index">Cancel</a>
+        </div>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,66 @@
+@model List<EventDto>
+@{
+    ViewData["Title"] = "Manage events";
+}
+<div class="container page">
+    <div class="page-head">
+        <div>
+            <h1>Events</h1>
+            <p>Create, edit and delete the events you organise.</p>
+        </div>
+        <a class="btn btn-primary" asp-action="Create">Create an event</a>
+    </div>
+
+    <partial name="_Flash" />
+
+    @if (Model.Count == 0)
+    {
+        <div class="panel empty">
+            <h3>No events yet</h3>
+            <p>Your events will be listed here once you create them.</p>
+            <a class="btn btn-primary mt-2" asp-action="Create">Create an event</a>
+        </div>
+    }
+    else
+    {
+        <div class="panel panel--flush">
+            <table class="rd-table table-responsive-stack">
+                <thead>
+                    <tr><th></th><th>Event</th><th>Date</th><th>Type</th><th class="num">Distance</th><th class="num">Enrolled</th><th></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var ev in Model)
+                {
+                    var thumb = Url.ImageUrl(ev.BannerImageName);
+                    <tr>
+                        <td data-label="Banner">
+                            @if (thumb != null)
+                            {
+                                <img class="rd-thumb" src="@thumb" alt="" />
+                            }
+                            else
+                            {
+                                <span class="rd-thumb" aria-hidden="true"></span>
+                            }
+                        </td>
+                        <td data-label="Event"><b>@ev.EventName</b><br /><span class="text-muted small">@ev.Location</span></td>
+                        <td data-label="Date">@ViewHelpers.ShortDate(ev.EventDate)</td>
+                        <td data-label="Type">@ev.EventType</td>
+                        <td data-label="Distance" class="num">@ViewHelpers.Km(ev.Distance)</td>
+                        <td data-label="Enrolled" class="num">@ev.EnrolmentCount</td>
+                        <td>
+                            <div class="row-actions">
+                                <a class="btn btn-sm btn-outline-ink" asp-action="Edit" asp-route-id="@ev.EventId">Edit</a>
+                                <a class="btn btn-sm btn-outline-ink" asp-controller="ManageCategories" asp-action="Index" asp-route-eventId="@ev.EventId">Categories</a>
+                                <form asp-action="Delete" asp-route-id="@ev.EventId" method="post" data-confirm="@($"Delete {ev.EventName}? Its categories, enrolments and results will be deleted too.")">
+                                    <button type="submit" class="btn btn-sm btn-danger-quiet">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

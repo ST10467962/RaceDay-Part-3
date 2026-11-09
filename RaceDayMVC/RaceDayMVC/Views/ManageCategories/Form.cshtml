@@ -1,0 +1,45 @@
+@model CategoryFormViewModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Add category" : "Edit category";
+}
+<div class="container page">
+    <p class="mb-3"><a asp-action="Index" asp-route-eventId="@Model.EventId">&larr; Categories for @Model.EventName</a></p>
+    <div class="page-head">
+        <h1>@(Model.IsNew ? "Add a category" : "Edit category")</h1>
+    </div>
+
+    <form asp-action="@(Model.IsNew ? "Create" : "Edit")" asp-route-id="@(Model.IsNew ? null : Model.CategoryId.ToString())" method="post" class="panel form-wide" novalidate>
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+        {
+            <div class="alert-form" role="alert" asp-validation-summary="ModelOnly"></div>
+        }
+        <input type="hidden" asp-for="EventId" />
+        <div class="row g-3">
+            <div class="col-12">
+                <label asp-for="CategoryName" class="form-label"></label>
+                <input asp-for="CategoryName" class="form-control" placeholder="For example 10 km Open" />
+                <span asp-validation-for="CategoryName"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Distance" class="form-label"></label>
+                <input asp-for="Distance" type="number" step="0.1" min="0.1" class="form-control" />
+                <span asp-validation-for="Distance"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="AgeGroup" class="form-label"></label>
+                <input asp-for="AgeGroup" class="form-control" placeholder="18-34, Under 18, Open" />
+                <span asp-validation-for="AgeGroup"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="EntryFee" class="form-label"></label>
+                <input asp-for="EntryFee" type="number" step="0.01" min="0" class="form-control" />
+                <span asp-validation-for="EntryFee"></span>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">@(Model.IsNew ? "Add category" : "Save changes")</button>
+            <a class="btn btn-outline-ink" asp-action="Index" asp-route-eventId="@Model.EventId">Cancel</a>
+        </div>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
