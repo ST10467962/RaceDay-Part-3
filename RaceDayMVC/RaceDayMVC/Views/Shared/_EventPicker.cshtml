@@ -1,0 +1,13 @@
+@model EventPickerViewModel
+<form method="get" class="panel mb-4 d-flex flex-wrap align-items-end gap-3">
+    <div class="flex-grow-1" style="min-width:240px">
+        <label for="eventId" class="form-label">Event</label>
+        <select id="eventId" name="eventId" class="form-select" data-autosubmit>
+            @foreach (var ev in Model.Events)
+            {
+                <option value="@ev.EventId" selected="@(Model.Selected?.EventId == ev.EventId)">@ev.EventName (@ViewHelpers.ShortDate(ev.EventDate))</option>
+            }
+        </select>
+    </div>
+    <noscript><button type="submit" class="btn btn-primary">Show</button></noscript>
+</form>

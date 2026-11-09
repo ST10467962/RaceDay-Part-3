@@ -1,0 +1,24 @@
+@model EventDto
+@{
+    var banner = Url.ImageUrl(Model.BannerImageName);
+}
+<a class="bib" asp-controller="Events" asp-action="Details" asp-route-id="@Model.EventId">
+    <div class="bib__holes" aria-hidden="true"><span></span><span></span></div>
+    @if (banner != null)
+    {
+        <div class="bib__media" style="background-image:url('@banner')" role="img" aria-label="@Model.EventName banner"></div>
+    }
+    else
+    {
+        <div class="bib__media bib__media--blank" aria-hidden="true"></div>
+    }
+    <div class="bib__body">
+        <h3 class="bib__title">@Model.EventName</h3>
+        <p class="bib__meta">@Model.Location<br />@Model.EventType</p>
+        <div class="bib__number"><strong>@ViewHelpers.Km(Model.Distance).Replace(" km", "")</strong><small>KM</small></div>
+        <div class="bib__date">
+            <b>@Model.EventDate.ToString("dd MMM", System.Globalization.CultureInfo.InvariantCulture)</b>
+            <span>@Model.EventDate.Year@(Model.StartTime.HasValue ? " at " + ViewHelpers.TimeOfDay(Model.StartTime) : "")</span>
+        </div>
+    </div>
+</a>

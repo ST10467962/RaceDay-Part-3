@@ -1,0 +1,12 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div class="container page">
+    <div class="empty panel">
+        <div class="display-font" style="font-size:6rem;color:var(--rd-blue);line-height:1">@Model.StatusCode</div>
+        <h1 style="font-size:2.4rem">@Model.Title</h1>
+        <p>@Model.Message</p>
+        <a class="btn btn-primary mt-3" asp-controller="Home" asp-action="Index">Back to home</a>
+    </div>
+</div>
