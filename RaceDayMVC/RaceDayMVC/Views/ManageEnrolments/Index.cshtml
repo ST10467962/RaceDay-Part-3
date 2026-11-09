@@ -1,0 +1,79 @@
+@model EnrolmentListViewModel
+@{
+    ViewData["Title"] = "Enrolments";
+    var eventId = Model.Selected?.EventId ?? 0;
+}
+<div class="container page">
+    <div class="page-head">
+        <div>
+            <h1>Enrolments</h1>
+            <p>See who has entered each event and confirm their places.</p>
+        </div>
+    </div>
+
+    <partial name="_Flash" />
+
+    @if (Model.Selected == null)
+    {
+        <div class="panel empty">
+            <h3>No events yet</h3>
+            <p>Enrolments appear here once you've created an event and participants start entering.</p>
+            <a class="btn btn-primary mt-2" asp-controller="ManageEvents" asp-action="Create">Create an event</a>
+        </div>
+    }
+    else
+    {
+        <partial name="_EventPicker" model="@((EventPickerViewModel)Model)" />
+
+        <div class="d-flex flex-wrap gap-2 mb-3" role="tablist" aria-label="Filter by status">
+            @foreach (var option in new[] { "All", "Pending", "Confirmed", "Cancelled" })
+            {
+                <a class="btn btn-sm @(Model.StatusFilter == option ? "btn-primary" : "btn-outline-ink")"
+                   asp-action="Index" asp-route-eventId="@eventId" asp-route-status="@option">@option (@Model.CountFor(option))</a>
+            }
+        </div>
+
+        @if (!Model.Visible.Any())
+        {
+            <div class="panel empty">
+                <h3>@(Model.Entries.Count == 0 ? "Nobody has enrolled yet" : "Nothing with that status")</h3>
+                <p>@(Model.Entries.Count == 0 ? "Share the event with participants. Their enrolments will show up here straight away." : "Try another status above.")</p>
+            </div>
+        }
+        else
+        {
+            <div class="panel panel--flush">
+                <table class="rd-table table-responsive-stack">
+                    <thead>
+                        <tr><th>Participant</th><th>Category</th><th>Enrolled on</th><th>Status</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var entry in Model.Visible)
+                    {
+                        <tr>
+                            <td data-label="Participant"><b>@entry.ParticipantName</b><br /><span class="text-muted small">@entry.ParticipantEmail</span></td>
+                            <td data-label="Category">@entry.CategoryName</td>
+                            <td data-label="Enrolled on">@ViewHelpers.ShortDate(entry.EntryDate)</td>
+                            <td data-label="Status"><partial name="_StatusBadge" model="@entry.Status" /></td>
+                            <td>
+                                <div class="row-actions">
+                                    @foreach (var next in FormOptions.EntryStatuses.Where(s => s != entry.Status))
+                                    {
+                                        <form asp-action="SetStatus" method="post">
+                                            <input type="hidden" name="entryId" value="@entry.EntryId" />
+                                            <input type="hidden" name="eventId" value="@eventId" />
+                                            <input type="hidden" name="filter" value="@Model.StatusFilter" />
+                                            <input type="hidden" name="status" value="@next" />
+                                            <button type="submit" class="btn btn-sm @(next == "Confirmed" ? "btn-primary" : next == "Cancelled" ? "btn-danger-quiet" : "btn-outline-ink")">@(next == "Confirmed" ? "Confirm" : next == "Cancelled" ? "Cancel" : "Set pending")</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>
