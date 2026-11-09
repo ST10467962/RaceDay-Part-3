@@ -1,0 +1,51 @@
+@model MyResultsViewModel
+@{
+    ViewData["Title"] = "My results";
+}
+<div class="container page">
+    <div class="page-head">
+        <div>
+            <h1>My results</h1>
+            <p>Your race history from events you've completed.</p>
+        </div>
+    </div>
+
+    @if (Model.Results.Count == 0)
+    {
+        <div class="panel empty">
+            <h3>No results yet</h3>
+            <p>When an organiser publishes the results of an event you entered, your finish time and position will appear here.</p>
+            <a class="btn btn-primary mt-2" asp-controller="MyEnrolments" asp-action="Index">View my enrolments</a>
+        </div>
+    }
+    else
+    {
+        <div class="stats">
+            <div class="stat"><b>@Model.Results.Count</b><span>Races completed</span></div>
+            <div class="stat stat--signal"><b>@Model.Podiums</b><span>Podium finishes</span></div>
+        </div>
+
+        <div class="panel panel--flush">
+            <table class="rd-table table-responsive-stack">
+                <thead>
+                    <tr><th>Event</th><th>Date</th><th>Category</th><th>Finish time</th><th>Position</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var result in Model.Results)
+                {
+                    <tr>
+                        <td data-label="Event"><a asp-controller="Events" asp-action="Details" asp-route-id="@result.EventId"><b>@result.EventName</b></a></td>
+                        <td data-label="Date">@ViewHelpers.ShortDate(result.EventDate)</td>
+                        <td data-label="Category">@result.CategoryName</td>
+                        <td data-label="Finish time"><span class="finish">@ViewHelpers.FinishTime(result.FinishTime)</span></td>
+                        <td data-label="Position">
+                            <span class="position@(result.Position <= 3 ? " position--podium" : "")">@ViewHelpers.Ordinal(result.Position)</span>
+                            <span class="text-muted"> out of @result.TotalFinishers finishers</span>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,83 @@
+@model ResultsEntryViewModel
+@{
+    ViewData["Title"] = "Results";
+}
+<div class="container page">
+    <div class="page-head">
+        <div>
+            <h1>Results</h1>
+            <p>Enter each finish time and finishing position once the event is over. Positions run 1, 2, 3 with no gaps.</p>
+        </div>
+    </div>
+
+    <partial name="_Flash" />
+
+    @if (Model.Selected == null)
+    {
+        <div class="panel empty">
+            <h3>No events yet</h3>
+            <p>Results can be captured after you've created an event and it has taken place.</p>
+            <a class="btn btn-primary mt-2" asp-controller="ManageEvents" asp-action="Create">Create an event</a>
+        </div>
+    }
+    else
+    {
+        <partial name="_EventPicker" model="@((EventPickerViewModel)Model)" />
+
+        @if (!Model.EventHasHappened)
+        {
+            <div class="panel empty">
+                <h3>This event hasn't taken place yet</h3>
+                <p>@Model.Selected.EventName is on @ViewHelpers.LongDate(Model.Selected.EventDate). Come back after race day to enter finish times.</p>
+            </div>
+        }
+        else if (Model.Rows.Count == 0)
+        {
+            <div class="panel empty">
+                <h3>No enrolled participants</h3>
+                <p>Nobody has an active enrolment in @Model.Selected.EventName, so there are no results to enter.</p>
+            </div>
+        }
+        else
+        {
+            <form asp-action="Save" method="post" class="panel panel--flush" novalidate>
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                {
+                    <div class="alert-form m-3" role="alert" asp-validation-summary="ModelOnly"></div>
+                }
+                <input type="hidden" name="eventId" value="@Model.EventId" />
+                <table class="rd-table table-responsive-stack">
+                    <thead>
+                        <tr><th>Participant</th><th>Category</th><th>Finish time (hh:mm:ss)</th><th>Position</th></tr>
+                    </thead>
+                    <tbody>
+                    @for (var i = 0; i < Model.Rows.Count; i++)
+                    {
+                        <tr>
+                            <td data-label="Participant">
+                                <input type="hidden" asp-for="Rows[i].EntryId" />
+                                <b>@Model.Rows[i].ParticipantName</b>
+                                <span class="ms-2"><partial name="_StatusBadge" model="@Model.Rows[i].Status" /></span>
+                            </td>
+                            <td data-label="Category">@Model.Rows[i].CategoryName</td>
+                            <td data-label="Finish time">
+                                <input asp-for="Rows[i].FinishTime" class="form-control time-input" placeholder="00:45:10" inputmode="numeric" autocomplete="off" aria-label="Finish time for @Model.Rows[i].ParticipantName" />
+                                <span asp-validation-for="Rows[i].FinishTime"></span>
+                            </td>
+                            <td data-label="Position">
+                                <input asp-for="Rows[i].Position" type="number" min="1" step="1" class="form-control position-input"
+                                       inputmode="numeric" autocomplete="off" aria-label="Finishing position for @Model.Rows[i].ParticipantName" />
+                                <span asp-validation-for="Rows[i].Position"></span>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+                <div class="p-3 d-flex flex-wrap align-items-center gap-3 border-top">
+                    <button type="submit" class="btn btn-primary">Save and publish results</button>
+                    <span class="form-hint m-0">Leave a time blank to clear that participant's result. Each finish time needs a position.</span>
+                </div>
+            </form>
+        }
+    }
+</div>
