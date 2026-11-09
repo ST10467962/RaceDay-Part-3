@@ -1,0 +1,92 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "My profile";
+    var picture = Url.ImageUrl(Model.ProfilePictureName);
+}
+<div class="container page">
+    <div class="page-head">
+        <div>
+            <h1>My profile</h1>
+            <p>Keep your details current. Organisers use them to contact you on race day.</p>
+        </div>
+    </div>
+
+    <partial name="_Flash" />
+
+    <form asp-action="Update" method="post" enctype="multipart/form-data" class="panel form-wide" novalidate>
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+        {
+            <div class="alert-form" role="alert" asp-validation-summary="ModelOnly"></div>
+        }
+
+        <div class="d-flex flex-wrap align-items-center gap-4 mb-4">
+            @if (picture != null)
+            {
+                <img id="picturePreview" class="avatar avatar--xl" src="@picture" alt="Your profile picture" />
+            }
+            else
+            {
+                <span class="avatar avatar--xl" aria-hidden="true" id="pictureInitials">@Model.Initials</span>
+                <img id="picturePreview" class="avatar avatar--xl" alt="Preview of your new profile picture" hidden />
+            }
+            <div>
+                <label asp-for="Picture" class="form-label"></label>
+                <input asp-for="Picture" type="file" class="form-control" accept="image/png,image/jpeg,image/gif,image/webp" data-preview="picturePreview" />
+                <div class="form-hint">JPG, PNG, GIF or WebP, up to 5 MB.</div>
+                <span asp-validation-for="Picture"></span>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <label asp-for="FirstName" class="form-label"></label>
+                <input asp-for="FirstName" class="form-control" autocomplete="given-name" />
+                <span asp-validation-for="FirstName"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="LastName" class="form-label"></label>
+                <input asp-for="LastName" class="form-control" autocomplete="family-name" />
+                <span asp-validation-for="LastName"></span>
+            </div>
+            <div class="col-sm-6">
+                <label class="form-label" for="emailReadOnly">Email</label>
+                <input id="emailReadOnly" class="form-control" value="@Model.Email" disabled />
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="PhoneNumber" class="form-label"></label>
+                <input asp-for="PhoneNumber" type="tel" class="form-control" autocomplete="tel" />
+                <span asp-validation-for="PhoneNumber"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="DateOfBirth" class="form-label"></label>
+                <input asp-for="DateOfBirth" type="date" class="form-control" />
+                <span asp-validation-for="DateOfBirth"></span>
+            </div>
+            <div class="col-sm-6">
+                <label asp-for="Gender" class="form-label"></label>
+                <select asp-for="Gender" class="form-select">
+                    <option value="">Choose</option>
+                    @foreach (var gender in FormOptions.Genders)
+                    {
+                        <option value="@gender" selected="@(Model.Gender == gender)">@gender</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control" autocomplete="street-address" />
+                <span asp-validation-for="Address"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="EmergencyContact" class="form-label"></label>
+                <input asp-for="EmergencyContact" class="form-control" placeholder="Name and phone number" />
+                <span asp-validation-for="EmergencyContact"></span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
