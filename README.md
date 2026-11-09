@@ -104,7 +104,7 @@ Use a clearly named branch such as `part-3-mvc`, commit in small steps (at least
 
 ## Demo video
 
-YouTube (unlisted): _add your link here before submitting_
+YouTube (unlisted):https://youtu.be/Rq1XW2bNeDw?si=JNtOEkZ0tBwpkFnO
 
 The video should show the full app running, explain the MVC structure (controllers, views, `ApiClient`, session filter), show images stored through Blob Storage, and show the Docker build and run.
 
